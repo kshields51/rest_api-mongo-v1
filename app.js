@@ -1,17 +1,37 @@
 'use strict';
 
-// So it looks like this is a basic express app skeleton which is nice...
 
 // load modules
 const express = require('express'); //This imports the Express Module
 const morgan = require('morgan'); // THis is for logging the requests to the console
-
+const jsonParser = require('body-parser').json;
+var mongoose = require('mongoose');
+var router = require('./Routes');
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 
 // create the Express app
 const app = express();
 
+mongoose.connect("mongodb://localhost:27017/fsjstd-restapi", {useNewUrlParser: true})
+  .then(() => console.log("Great"), (err) => {console.log(err)})
+  .catch(err => {console.log(err)})
+
+
+var db = mongoose.connection;
+
+db.on("MongoNetworkError", (err) => {
+    console.error("connection error:", err)
+});
+
+db.once("open", () => {
+    console.log("db connection successful");
+}, (err) => {console.log(err)}).catch(err => {console.log(err)});
+
+app.use(morgan("dev"));
+app.use(jsonParser()); 
+// creating the routers
+app.use("/api", router);
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
@@ -20,6 +40,9 @@ app.use(morgan('dev'));
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to the REST API project!',
+    message2: 'hi there',
+    message3: 'hi there'
+    
   });
 });
 
@@ -38,7 +61,7 @@ app.use((err, req, res, next) => {
 
   res.status(err.status || 500).json({
     message: err.message,
-    error: {},
+    error: {status: err.status},
   });
 });
 
