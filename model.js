@@ -1,8 +1,8 @@
-var mongoose = require('mongoose') //imports mongoose
+var mongoose = require('mongoose'); //imports mongoose
 
-var {Schema} = mongoose // creates a new Schema
+var {Schema} = mongoose; // creates a new Schema
 
- //User schema is created. An _id is assigned at creation along with
+ //User schema is created. An _id is assigned at creation validation assigned with true
 var userSchema = new Schema({
     firstName: {
         type: String,
@@ -21,10 +21,9 @@ var userSchema = new Schema({
         required: true
     } 
 });
-//courseSchema is created
+//courseSchema is created the user field will match an _id field from the userSchema to display the full user details
 var CourseSchema = new Schema({
-    user: { type: Schema.Types.ObjectId, ref: 'User' }, //FOR some reason this is not showing up on any courses created using the //there are a million users
-    //how does it konw which user maybe need a presave hook or something similar to maybe req.user.id
+    user: { type: Schema.Types.ObjectId, ref: 'User'},
     title: {
         type: String,
         required: true
@@ -41,11 +40,7 @@ var CourseSchema = new Schema({
     }
 });
 
-CourseSchema.pre('save', function() {
-    var thisisid = req.userId
-    this.user = thisisid
-    next();
-});
+
 
 //creates the models
 var User = mongoose.model('User', userSchema);
